@@ -1,3 +1,29 @@
+- name: setup web server
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Install APT packages and update cache
+      ansible.builtin.apt:
+        update_cache: yes
+        name:
+          - software-properties-common
+          - git
+          - python3-pip
+          - apt-transport-https
+        state: present
+
+    - name: Add Docker repository key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Set up the Docker repository
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker Engine and Docker Compose
+      ansible.builtin.apt:
         name:
           - docker-ce
           - docker-ce-cli
@@ -23,19 +49,20 @@
       ansible.builtin.git:
         repo: https://github.com/meshyharel3/developer.git
         dest: /opt/developer
+        version: main
+        force: yes
 
     - name: Build Docker image
       ansible.builtin.shell:
-        cmd: docker build -t meshyharel3/Dockerfile-nginx:latest .
+        cmd: docker build -t meshyharel3/dockerfile:latest .
         chdir: /opt/developer
 
     - name: Push the image to DockerHub
       ansible.builtin.shell:
         cmd: |
           echo Mh12harel | docker login -u meshyharel3 --password-stdin
-          docker push meshyharel3/nginx:latest
+          docker push meshyharel3/dockerfile:latest
 
     - name: Run Docker container
       ansible.builtin.shell:
-        cmd: docker run -d -p 80:80 meshyharel3/nginx:latest
--- INSERT --                                                                                                            66,57         Bot
+        cmd: docker run -d -p 80:80 meshyharel3/dockerfile:latest
