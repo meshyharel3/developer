@@ -1,0 +1,41 @@
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose
+        state: present
+
+    - name: Start Docker service
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Copy SSH key for access
+      ansible.builtin.copy:
+        src: /home/ubuntu/.ssh/id_ed25519.pub
+        dest: /root/.ssh/id_rsa
+        mode: '0600'
+        owner: root
+        group: root
+
+    - name: Clone the repo
+      ansible.builtin.git:
+        repo: https://github.com/meshyharel3/developer.git
+        dest: /opt/developer
+
+    - name: Build Docker image
+      ansible.builtin.shell:
+        cmd: docker build -t meshyharel3/Dockerfile-nginx:latest .
+        chdir: /opt/developer
+
+    - name: Push the image to DockerHub
+      ansible.builtin.shell:
+        cmd: |
+          echo Mh12harel | docker login -u meshyharel3 --password-stdin
+          docker push meshyharel3/nginx:latest
+
+    - name: Run Docker container
+      ansible.builtin.shell:
+        cmd: docker run -d -p 80:80 meshyharel3/nginx:latest
+-- INSERT --                                                                                                            66,57         Bot
