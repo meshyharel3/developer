@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    triggers {
+        githubPush() 
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build') {
+            steps {
+                // Add build commands here
+                echo 'Building...'
+            }
+        }
+        stage('Test') {
+            steps {
+                // Add test commands here
+                echo 'Testing...'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Add deployment commands here
+                echo 'Deploying...'
+            }
+        }
+    }
+}
